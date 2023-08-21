@@ -17,9 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +53,7 @@ public class TuitionOrderService {
     public List<TuitionOrderDetailedDTO> getTuitionOrderDetails(String name, String sessionToken) {
 
         logger.debug("Retrieving all tutor names and ids");
-        List<TutorRes> tutorList = externalCallService.getAllTutorName(name, sessionToken);
+        List<TutorRes> tutorList = externalCallService.getAllTutorNameBackend(name, sessionToken);
 
         logger.debug("Retrieving all student names and ids");
         List<StudentRes> studentList = externalCallService.getAllStudentName(name, sessionToken);

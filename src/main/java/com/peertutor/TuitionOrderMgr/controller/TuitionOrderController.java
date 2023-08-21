@@ -25,10 +25,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping(path = "/tuition-order-mgr")
@@ -54,7 +51,7 @@ public class TuitionOrderController {
     public @ResponseBody String test(
             @RequestParam(name = "name") String name,
             @RequestParam(name = "sessionToken") String sessionToken) {
-        List<TutorRes> res = externalCallService.getAllTutorName(name, sessionToken);
+        List<TutorRes> res = externalCallService.getAllTutorNameBackend(name, sessionToken);
         List<StudentRes> res2 = externalCallService.getAllStudentName(name, sessionToken);
         System.out.println("making api call");
         System.out.println(res2);
