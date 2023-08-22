@@ -1,16 +1,12 @@
 package com.peertutor.TuitionOrderMgr.controller;
 
 import com.peertutor.TuitionOrderMgr.model.viewmodel.request.TuitionOrderReq;
-import com.peertutor.TuitionOrderMgr.model.viewmodel.response.StudentRes;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.response.TuitionOrderRes;
-import com.peertutor.TuitionOrderMgr.model.viewmodel.response.TutorRes;
 import com.peertutor.TuitionOrderMgr.repository.TuitionOrderRepository;
 import com.peertutor.TuitionOrderMgr.service.AuthService;
 import com.peertutor.TuitionOrderMgr.service.ExternalCallService;
 import com.peertutor.TuitionOrderMgr.service.TuitionOrderService;
-import com.peertutor.TuitionOrderMgr.service.dto.TuitionOrderCriteria;
-import com.peertutor.TuitionOrderMgr.service.dto.TuitionOrderDTO;
-import com.peertutor.TuitionOrderMgr.service.dto.TuitionOrderDetailedDTO;
+import com.peertutor.TuitionOrderMgr.service.dto.*;
 import com.peertutor.TuitionOrderMgr.util.AppConfig;
 import io.github.jhipster.web.util.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +47,8 @@ public class TuitionOrderController {
     public @ResponseBody String test(
             @RequestParam(name = "name") String name,
             @RequestParam(name = "sessionToken") String sessionToken) {
-        List<TutorRes> res = externalCallService.getAllTutorNameBackend(name, sessionToken);
-        List<StudentRes> res2 = externalCallService.getAllStudentName(name, sessionToken);
+        List<TutorDTO> res = externalCallService.getAllTutorName(name, sessionToken);
+        List<StudentDTO> res2 = externalCallService.getAllStudentName(name, sessionToken);
         System.out.println("making api call");
         System.out.println(res2);
 

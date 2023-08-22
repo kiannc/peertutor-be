@@ -1,4 +1,4 @@
-package com.peertutor.StudentMgr.controller.errors;
+package com.peertutor.TuitionOrderMgr.controller.errors;
 
 import io.github.jhipster.web.util.HeaderUtil;
 import org.springframework.beans.factory.annotation.Value;

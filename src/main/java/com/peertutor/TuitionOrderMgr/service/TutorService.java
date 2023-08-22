@@ -87,4 +87,8 @@ public class TutorService {
         List<TutorDTO> tutorList = tutorQueryService.findByCriteria(criteria);
         return tutorList;
     }
+    public Page<TutorDTO> getTutorByCriteria(TutorCriteria criteria, Pageable pageable) {
+        Page<TutorDTO> tutorList = tutorQueryService.findByCriteria(criteria, pageable);
+        return tutorList;
+    }
 }

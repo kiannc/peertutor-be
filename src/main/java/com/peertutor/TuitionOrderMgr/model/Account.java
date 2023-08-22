@@ -1,6 +1,6 @@
-package com.peertutor.TuitionOrderMgr.util.model;
+package com.peertutor.TuitionOrderMgr.model;
 
-import com.peertutor.TuitionOrderMgr.util.model.enumeration.UserType;
+import com.peertutor.TuitionOrderMgr.model.enumeration.UserType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 

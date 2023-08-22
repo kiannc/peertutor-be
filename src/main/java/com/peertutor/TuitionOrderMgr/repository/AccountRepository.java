@@ -1,6 +1,6 @@
-package com.peertutor.TuitionOrderMgr.util.repository;
+package com.peertutor.TuitionOrderMgr.repository;
 
-import com.peertutor.TuitionOrderMgr.util.model.Account;
+import com.peertutor.TuitionOrderMgr.model.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

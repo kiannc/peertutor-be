@@ -1,4 +1,4 @@
-package com.peertutor.StudentMgr.controller.errors;
+package com.peertutor.TuitionOrderMgr.controller.errors;
 
 import java.io.Serializable;
 

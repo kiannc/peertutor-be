@@ -2,12 +2,8 @@ package com.peertutor.TuitionOrderMgr.service;
 
 import com.peertutor.TuitionOrderMgr.model.TuitionOrder;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.request.TuitionOrderReq;
-import com.peertutor.TuitionOrderMgr.model.viewmodel.response.StudentRes;
-import com.peertutor.TuitionOrderMgr.model.viewmodel.response.TutorRes;
 import com.peertutor.TuitionOrderMgr.repository.TuitionOrderRepository;
-import com.peertutor.TuitionOrderMgr.service.dto.TuitionOrderCriteria;
-import com.peertutor.TuitionOrderMgr.service.dto.TuitionOrderDTO;
-import com.peertutor.TuitionOrderMgr.service.dto.TuitionOrderDetailedDTO;
+import com.peertutor.TuitionOrderMgr.service.dto.*;
 import com.peertutor.TuitionOrderMgr.service.mapper.TuitionOrderMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,22 +49,22 @@ public class TuitionOrderService {
     public List<TuitionOrderDetailedDTO> getTuitionOrderDetails(String name, String sessionToken) {
 
         logger.debug("Retrieving all tutor names and ids");
-        List<TutorRes> tutorList = externalCallService.getAllTutorNameBackend(name, sessionToken);
+        List<TutorDTO> tutorList = externalCallService.getAllTutorName(name, sessionToken);
 
         logger.debug("Retrieving all student names and ids");
-        List<StudentRes> studentList = externalCallService.getAllStudentName(name, sessionToken);
+        List<StudentDTO> studentList = externalCallService.getAllStudentName(name, sessionToken);
 
         // convert to map for processing
         Map<Long, String> studentNameIdMap = studentList.stream()
                 .collect(Collectors.toMap(
-                        StudentRes::getId, StudentRes::getDisplayName));
+                        StudentDTO::getId, StudentDTO::getDisplayName));
 
         List<TuitionOrderDTO> tuitionOrders = getAllTuitionOrder();
 
         // convert to map for processing
         Map<Long, String> tutorNameIdMap = tutorList.stream()
                 .collect(Collectors.toMap(
-                        TutorRes::getId, TutorRes::getDisplayName));
+                        TutorDTO::getId, TutorDTO::getDisplayName));
 
         // manual join table.........
         logger.debug("Combine multiple tables - student, tutor, tuition order");

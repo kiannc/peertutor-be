@@ -3,11 +3,11 @@ package com.peertutor.TuitionOrderMgr.controller;
 import com.peertutor.TuitionOrderMgr.repository.TutorRepository;
 import com.peertutor.TuitionOrderMgr.service.AuthService;
 import com.peertutor.TuitionOrderMgr.util.AppConfig;
-import com.peertutor.TutorMgr.model.viewmodel.request.TutorProfileReq;
-import com.peertutor.TutorMgr.model.viewmodel.response.TutorProfileRes;
-import com.peertutor.TutorMgr.service.TutorService;
-import com.peertutor.TutorMgr.service.dto.TutorCriteria;
-import com.peertutor.TutorMgr.service.dto.TutorDTO;
+import com.peertutor.TuitionOrderMgr.model.viewmodel.request.TutorProfileReq;
+import com.peertutor.TuitionOrderMgr.model.viewmodel.response.TutorProfileRes;
+import com.peertutor.TuitionOrderMgr.service.TutorService;
+import com.peertutor.TuitionOrderMgr.service.dto.TutorCriteria;
+import com.peertutor.TuitionOrderMgr.service.dto.TutorDTO;
 import io.github.jhipster.web.util.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -56,7 +56,7 @@ public class TutorController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         }
 
-        com.peertutor.TutorMgr.model.viewmodel.response.TutorProfileRes res = new TutorProfileRes();
+        com.peertutor.TuitionOrderMgr.model.viewmodel.response.TutorProfileRes res = new TutorProfileRes();
         res.displayName = savedUser.getDisplayName();
         res.introduction = savedUser.getIntroduction();
         res.subjects = savedUser.getSubjects();
