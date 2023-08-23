@@ -1,9 +1,9 @@
-package com.peertutor.TuitionOrderMgr.util.model.viewmodel.response;
+package com.peertutor.TuitionOrderMgr.model.viewmodel.request;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-public class AccountRegistrationRes {
+public class BookmarkReq {
     @NotNull
     @NotEmpty
     public String name;
@@ -12,7 +12,11 @@ public class AccountRegistrationRes {
     @NotEmpty
     public String sessionToken;
 
+    public Long id;
+
     @NotNull
-    @NotEmpty
-    public String usertype;
+    public Long tutorID;
+
+    @NotNull
+    public Long studentID;
 }
