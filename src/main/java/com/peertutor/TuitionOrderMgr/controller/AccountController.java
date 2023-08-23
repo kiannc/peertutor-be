@@ -19,9 +19,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
 
-import static org.springframework.http.HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS;
-import static org.springframework.http.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN;
-
 @Controller
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(path = "/account-mgr")
