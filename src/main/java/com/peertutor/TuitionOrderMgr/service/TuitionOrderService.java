@@ -106,7 +106,7 @@ public class TuitionOrderService {
 
         Collections.sort(req.selectedDates);
 
-        List<Date> availableDates = tutorCalendarService.getTutorCalendar(req.name, req.sessionToken, req.tutorId);
+        List<Date> availableDates = tutorCalendarService.getTutorCalendar(req.tutorId).availableDate;
         String selectedDates = String.join(";", req.selectedDates.toString());
         if (req.status != null && req.status != 2) {
             if (!availableDates.containsAll(req.selectedDates)) {
@@ -128,7 +128,7 @@ public class TuitionOrderService {
         } finally {
             if (req.id != null && req.status == 1) {
                 removeConflictTuitionOrder(req.selectedDates, req.tutorId);
-                tutorCalendarService.deleteTutorCalendar(req.name, req.sessionToken, req.tutorId, selectedDates);
+                tutorCalendarService.deleteAvailableDates(req.tutorId, selectedDates);
             }
         }
 

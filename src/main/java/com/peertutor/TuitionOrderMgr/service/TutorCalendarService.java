@@ -1,52 +1,75 @@
 package com.peertutor.TuitionOrderMgr.service;
 
+import com.peertutor.TuitionOrderMgr.model.TutorCalendar;
+import com.peertutor.TuitionOrderMgr.model.viewmodel.request.TutorCalendarReq;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.response.TutorCalendarRes;
-import com.peertutor.TuitionOrderMgr.util.AppConfig;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import com.peertutor.TuitionOrderMgr.repository.TutorCalendarRepository;
+import com.peertutor.TuitionOrderMgr.service.mapper.TutorCalendarMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
-public class TutorCalendarService {
+public class TutorCalendarService{
 
-    @Autowired
-    AppConfig appConfig;
+    private static final Logger logger = LoggerFactory.getLogger(TutorCalendarService.class);
+    private final TutorCalendarMapper tutorCalendarMapper;
+    private TutorCalendarRepository tutorCalendarRepository;
 
-    public List<Date> getTutorCalendar(String name, String sessionToken, Long tutorId) {
-        String url = appConfig.getTutorCalendarMgr().get("url");
-        String port = appConfig.getTutorCalendarMgr().get("port");
-
-        String endpoint = url + "/calendar?name=" + name + "&sessionToken=" + sessionToken + "&tutorId=" + tutorId;
-
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
-        headers.add("Content-Type", "application/json");
-
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-
-        TutorCalendarRes result = (TutorCalendarRes) restTemplate.getForObject(endpoint, TutorCalendarRes.class);
-        return result.availableDate;
+    public TutorCalendarService(TutorCalendarRepository tutorCalendarRepository, TutorCalendarMapper tutorCalendarMapper) {
+        this.tutorCalendarRepository = tutorCalendarRepository;
+        this.tutorCalendarMapper = tutorCalendarMapper;
     }
 
-    public void deleteTutorCalendar(String name, String sessionToken, Long tutorId, String dates) {
-        String url = appConfig.getTutorCalendarMgr().get("url");
-        String port = appConfig.getTutorCalendarMgr().get("port");
+    public List<TutorCalendar> addAvailableDate(TutorCalendarReq req) {
+        tutorCalendarRepository.deleteAllByTutorId(req.tutorId);
 
-        String endpoint = url + "/calendar?name=" + name + "&sessionToken=" + sessionToken + "&tutorId=" + tutorId
-                + "&dates=" + dates;
+        req.availableDates.stream().forEach(date -> {
+            TutorCalendar tutorCalendar = new TutorCalendar();
+            tutorCalendar.setTutorId(req.tutorId);
+            tutorCalendar.setAvailableDate(date);
 
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
-        headers.add("Content-Type", "application/json");
+            try {
+                tutorCalendar = tutorCalendarRepository.save(tutorCalendar);
+            } catch (Exception e) {
+                logger.error("Add available time slot fail: " + e.getMessage());
+            }
+        });
 
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        return tutorCalendarRepository.findAllByTutorId(req.tutorId);
+    }
 
-        restTemplate.delete(endpoint);
+    public TutorCalendarRes getTutorCalendar(Long tutorID) {
+        List<TutorCalendar> tutorCalendar = tutorCalendarRepository.findAllByTutorId(tutorID);
+
+        List<Date> dates = tutorCalendar.stream().map(c -> c.getAvailableDate()).collect(Collectors.toList());
+        Collections.sort(dates);
+        return new TutorCalendarRes(dates);
+    }
+
+    public void deleteAvailableDates(Long tutorID, String dates) {
+        List<TutorCalendar> tutorCalendar = tutorCalendarRepository.findAllByTutorId(tutorID);
+
+        List<Date> result = Arrays.asList(dates.replaceAll("[()\\[\\]]", "").split(",")).stream().map(
+                date -> {
+                    try {
+                        java.util.Date utilDate = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+                        return new Date(utilDate.getTime());
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        ).collect(Collectors.toList());
+
+        tutorCalendarRepository.deleteAllByTutorIdAndAvailableDateIn(tutorID, result);
     }
 }
