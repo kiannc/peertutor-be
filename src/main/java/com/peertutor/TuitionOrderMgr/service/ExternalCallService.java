@@ -48,7 +48,20 @@ public class ExternalCallService{
                     tutorDTO.getCertificates()
             )).collect(Collectors.toList());
         } else {
-            return Collections.emptyList();
+            TutorCriteria criteria = new TutorCriteria(
+                    Optional.ofNullable(""),
+                    Optional.ofNullable(""),
+                    Optional.ofNullable(""),
+                    Optional.ofNullable(""));
+            List<TutorDTO> tutorList = tutorService.getTutorByCriteria(criteria);
+            return tutorList.stream().map(tutorDTO -> new TutorDTO(
+                    tutorDTO.getId(),
+                    tutorDTO.getAccountName(),
+                    tutorDTO.getDisplayName(),
+                    tutorDTO.getIntroduction(),
+                    tutorDTO.getSubjects(),
+                    tutorDTO.getCertificates()
+            )).collect(Collectors.toList());
         }
     }
 
