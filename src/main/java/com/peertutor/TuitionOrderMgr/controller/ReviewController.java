@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Controller
 @RequestMapping(path="/review-mgr")
@@ -96,24 +97,27 @@ public class ReviewController {
 		return ResponseEntity.ok().body(res);
 	}
 	@GetMapping(path = "/reviews")
-	public @ResponseBody ResponseEntity<ReviewRes> getReview(@RequestBody  @Valid ReviewReq req) {
+	public @ResponseBody ResponseEntity<List<ReviewDTO>> getReview(
+			@RequestParam(name = "name") String name,
+			@RequestParam(name = "sessionToken") String sessionToken,
+			@RequestParam(name = "tutorID") Long tutorID) {
 
-		boolean result = authService.getAuthentication(req.name, req.sessionToken);
+		boolean result = authService.getAuthentication(name, sessionToken);
 		if (!result) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 		}
 
-		ReviewDTO saveReview;
-		saveReview = reviewService.getAllReview(req.tutionOrderID);
+		List<ReviewDTO> saveReview;
+		saveReview = reviewService.getAllReview(tutorID);
 
 		if (saveReview == null) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 		}
 
-		ReviewRes res = new ReviewRes(saveReview);
-		res.rating = saveReview.getRating();
-		res.comment = saveReview.getComment();
+//		ReviewRes res = new ReviewRes(saveReview);
+//		res.rating = saveReview.getRating();
+//		res.comment = saveReview.getComment();
 		
-		return ResponseEntity.ok().body(res);
+		return ResponseEntity.ok().body(saveReview);
 	}
 }

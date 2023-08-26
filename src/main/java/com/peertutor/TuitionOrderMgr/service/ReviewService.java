@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ReviewService {
 	private static final Logger logger = LoggerFactory.getLogger(ReviewService.class);
@@ -67,13 +69,13 @@ public class ReviewService {
 
 		return result;
 	}
-	public ReviewDTO getAllReview(Long tutorID) {
-		Review review = reviewRepository.findByTutorID(tutorID);
+	public List<ReviewDTO> getAllReview(Long tutorID) {
+		List<Review> review = reviewRepository.findByTutorID(tutorID);
 
 		if(review == null) {
 			return null;
 		}
-		ReviewDTO result= reviewMapper.toDto(review);
+		List<ReviewDTO> result= reviewMapper.toDto(review);
 
 		return result;
 	}
