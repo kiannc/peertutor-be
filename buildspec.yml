@@ -5,9 +5,11 @@ env:
     DB_PORT: "/dev/RDS/port"
     SPRING_PROFILE_ACTIVE: "/dev/app/profile"
     MYSQLDB_DATABASE: "/dev/RDS/dbName"
-    MYSQLDB_ROOT_PASSWORD: "/dev/RDS/password"
+#    MYSQLDB_ROOT_PASSWORD: "/dev/RDS/password"
     MYSQLDB_USER: "/dev/RDS/user"
     APPLICATION_PORT: "/dev/tuitionOrderMgr/port"
+  secrets-manager:
+    MYSQLDB_ROOT_PASSWORD: "arn:aws:secretsmanager:ap-southeast-1:160073686820:secret:rds!db-69b5dcdc-16f6-442d-95b5-0b2c199c1b60-q7GPSv"
 #  variables:
 #    JWT_SECRET: "/dev/accountMgr/jwtSecret"
 #    JWT_EXPIRY_DURATION: "/dev/accountMgr/jwtExpiry"
