@@ -22,7 +22,7 @@ RUN echo DB_URL = $DB_URL
 RUN echo DB_PORT = $DB_PORT
 
 # RUN ./mvnw install -DskipTests -e
-
+RUN chmod +x mvnw
 RUN ./mvnw install -Dspring.profiles.active=$SPRING_PROFILE \
     -Dspring.datasource.url="jdbc:mysql://${DB_URL}:$DB_PORT/$MYSQLDB_DATABASE" \
     -Dspring.datasource.password=$MYSQLDB_ROOT_PASSWORD \
@@ -40,5 +40,5 @@ ARG DEPENDENCY=/workspace/app/target/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
-ENTRYPOINT ["java" ,"-cp","app:app/lib/*","com.peertutor.TuitionOrderMgr.TuitionOrderMgrApplication"]
+ENTRYPOINT ["java" ,"-cp","app:app/lib/*","com.peertutor.PeerTutorBe.PeerTutorBe"]
 
