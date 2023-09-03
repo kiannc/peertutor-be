@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -109,12 +110,19 @@ public class TuitionOrderService {
         List<Date> availableDates = tutorCalendarService.getTutorCalendar(req.tutorId).availableDate;
         String selectedDates = String.join(";", req.selectedDates.toString());
         if (req.status != null && req.status != 2) {
-            if (!availableDates.containsAll(req.selectedDates)) {
+
+            List<LocalDate> aDate = availableDates.stream()
+                    .map(Date::toLocalDate)
+                    .collect(Collectors.toList());
+            List<LocalDate> sDate = req.selectedDates.stream()
+                    .map(Date::toLocalDate)
+                    .collect(Collectors.toList());
+
+            if (!aDate.containsAll(sDate)) {
                 logger.info("Tutor is not available on selected dates");
                 return null;
             } else {
                 logger.info("Tutor is available on selected dates");
-                
             }
         }
 
