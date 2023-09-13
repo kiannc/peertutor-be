@@ -8,6 +8,7 @@ import com.peertutor.TuitionOrderMgr.service.mapper.TutorCalendarMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.Transactional;
 import java.sql.Date;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 
 @Service
+@Transactional
 public class TutorCalendarService{
 
     private static final Logger logger = LoggerFactory.getLogger(TutorCalendarService.class);
