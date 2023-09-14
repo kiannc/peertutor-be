@@ -9,4 +9,5 @@ public class TutorProfileRes {
     public String subjects;
 
     public String certificates;
+    public boolean isBookmarked;
 }

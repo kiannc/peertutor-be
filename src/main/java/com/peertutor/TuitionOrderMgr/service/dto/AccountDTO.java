@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * A DTO for the {@link com.peertutor.AccountMgr.model.Account} entity.
+ * A DTO for the {@link com.peertutor.TuitionOrderMgr.model.Account} entity.
  */
 @Data
 @AllArgsConstructor

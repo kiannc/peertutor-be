@@ -45,6 +45,13 @@ public class BookmarkService {
         return result;
     }
 
+    // get bookmark by student id and tutor id
+    public BookmarkDTO getBookmark(Long studentId, Long tutorId) {
+        Optional<Bookmark> bookmark = bookmarkRepository.findByTutorIDAndStudentID(tutorId, studentId);
+
+        return bookmark.map(bookmarkMapper::toDto).orElseGet(() -> null);
+    }
+
     // create bookmark by tutor id
     public BookmarkDTO createBookmark(BookmarkReq req){
         Optional<Bookmark> bookmarkOptional;

@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * A DTO for the {@link com.peertutor.TutorMgr.model.Tutor} entity.
+ * A DTO for the {@link com.peertutor.TuitionOrderMgr.model.Tutor} entity.
  */
 @Data
 @AllArgsConstructor
@@ -20,6 +20,14 @@ import java.util.Objects;
 public class TutorDTO implements Serializable {
 
     private Long id;
+
+    public String getAccountName() {
+        return accountName;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
 
     private String accountName;
 
@@ -30,6 +38,8 @@ public class TutorDTO implements Serializable {
     private String subjects;
 
     private String certificates;
+
+    private boolean isBookmarked = false;
 
     public Long getId() {
         return id;
@@ -106,5 +116,13 @@ public class TutorDTO implements Serializable {
                 "id=" + id +
                 ", displayName='" + displayName + '\'' +
                 '}';
+    }
+
+    public boolean isBookmarked() {
+        return isBookmarked;
+    }
+
+    public void setBookmarked(boolean bookmarked) {
+        isBookmarked = bookmarked;
     }
 }

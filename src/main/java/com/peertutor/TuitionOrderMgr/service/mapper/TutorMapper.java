@@ -6,7 +6,7 @@ import com.peertutor.TuitionOrderMgr.service.dto.TutorDTO;
 import org.mapstruct.Mapper;
 
 /**
- * Mapper for the entity {@link com.peertutor.TutorMgr.model.Tutor} and its DTO {@link TutorDTO}.
+ * Mapper for the entity {@link com.peertutor.TuitionOrderMgr.model.Tutor} and its DTO {@link TutorDTO}.
  */
 @Mapper(componentModel = "spring")
 public interface TutorMapper extends EntityMapper<TutorDTO, Tutor> {

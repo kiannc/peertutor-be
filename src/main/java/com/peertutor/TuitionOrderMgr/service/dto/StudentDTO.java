@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * A DTO for the {@link com.peertutor.StudentMgr.model.Student} entity.
+ * A DTO for the {@link com.peertutor.TuitionOrderMgr.model.Student} entity.
  */
 @Data
 @AllArgsConstructor
@@ -19,6 +19,14 @@ import java.util.Objects;
 public class StudentDTO implements Serializable {
 
     private Long id;
+
+    public String getAccountName() {
+        return accountName;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
 
     private String accountName;
 

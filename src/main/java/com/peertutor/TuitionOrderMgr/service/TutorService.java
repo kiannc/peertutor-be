@@ -2,7 +2,9 @@ package com.peertutor.TuitionOrderMgr.service;
 
 import com.peertutor.TuitionOrderMgr.model.Tutor;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.request.TutorProfileReq;
+import com.peertutor.TuitionOrderMgr.model.viewmodel.response.TutorProfileRes;
 import com.peertutor.TuitionOrderMgr.repository.TutorRepository;
+import com.peertutor.TuitionOrderMgr.service.dto.BookmarkDTO;
 import com.peertutor.TuitionOrderMgr.service.dto.TutorCriteria;
 import com.peertutor.TuitionOrderMgr.service.dto.TutorDTO;
 import com.peertutor.TuitionOrderMgr.service.mapper.TutorMapper;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TutorService {
@@ -25,6 +28,8 @@ public class TutorService {
     private TutorRepository tutorRepository;
     @Autowired
     private TutorQueryService tutorQueryService;
+    @Autowired
+    private BookmarkService bookmarkService;
 
     public TutorService(TutorRepository tutorRepository, TutorMapper tutorMapper) {
         this.tutorRepository = tutorRepository;
@@ -87,8 +92,17 @@ public class TutorService {
         List<TutorDTO> tutorList = tutorQueryService.findByCriteria(criteria);
         return tutorList;
     }
-    public Page<TutorDTO> getTutorByCriteria(TutorCriteria criteria, Pageable pageable) {
+    public Page<TutorDTO> getTutorByCriteria(TutorCriteria criteria, Pageable pageable, Optional<Long> studentId) {
         Page<TutorDTO> tutorList = tutorQueryService.findByCriteria(criteria, pageable);
+
+        if (studentId.isPresent()) {
+            tutorList = tutorList.map(tutorDTO -> {
+                BookmarkDTO isBookMarked = bookmarkService.getBookmark(studentId.get(), tutorDTO.getId());
+                tutorDTO.setBookmarked(isBookMarked != null);
+                return tutorDTO;
+            });
+        }
+
         return tutorList;
     }
 }

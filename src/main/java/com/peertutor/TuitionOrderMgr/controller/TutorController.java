@@ -108,6 +108,7 @@ public class TutorController {
             @RequestParam(name = "subjects") Optional<String> subjects,
             @RequestParam(name = "introduction") Optional<String> introduction,
             @RequestParam(name = "certificates") Optional<String> certificates,
+            @RequestParam(name = "studentId") Optional<Long> studentId,
             Pageable pageable) {
         boolean result = authService.getAuthentication(name, sessionToken);
         if (!result) {
@@ -115,7 +116,7 @@ public class TutorController {
         }
 
         TutorCriteria criteria = new TutorCriteria(displayName, subjects, introduction, certificates);
-        Page<TutorDTO> page = tutorService.getTutorByCriteria(criteria, pageable);
+        Page<TutorDTO> page = tutorService.getTutorByCriteria(criteria, pageable, studentId);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         List<TutorProfileRes> filteredTutors = page.getContent().stream().map(tutorDTO -> {
             TutorProfileRes res = new TutorProfileRes();
@@ -124,7 +125,7 @@ public class TutorController {
             res.subjects = tutorDTO.getSubjects();
             res.certificates = tutorDTO.getCertificates();
             res.id = tutorDTO.getId();
-
+            res.isBookmarked = tutorDTO.isBookmarked();
             return res;
         }).collect(Collectors.toList());
         return ResponseEntity.ok().headers(headers).body(filteredTutors);
