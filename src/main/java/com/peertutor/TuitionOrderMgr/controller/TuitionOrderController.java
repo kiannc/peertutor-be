@@ -1,5 +1,6 @@
 package com.peertutor.TuitionOrderMgr.controller;
 
+import com.peertutor.TuitionOrderMgr.exception.ExistingTuitionOrderException;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.request.TuitionOrderReq;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.response.TuitionOrderRes;
 import com.peertutor.TuitionOrderMgr.repository.TuitionOrderRepository;
@@ -56,7 +57,8 @@ public class TuitionOrderController {
     }
 
     @PostMapping(path = "/tuitionOrder")
-    public @ResponseBody ResponseEntity<TuitionOrderRes> createTuitionProfile(@RequestBody @Valid TuitionOrderReq req) {
+    @ExceptionHandler(ExistingTuitionOrderException.class)
+    public @ResponseBody ResponseEntity createTuitionProfile(@RequestBody @Valid TuitionOrderReq req) {
         boolean result = authService.getAuthentication(req.name, req.sessionToken);
         if (!result) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
@@ -64,7 +66,12 @@ public class TuitionOrderController {
 
         TuitionOrderDTO savedTuitionOrder;
 
-        savedTuitionOrder = tuitionOrderService.createTuitionOrder(req);
+        try {
+            savedTuitionOrder = tuitionOrderService.createTuitionOrder(req);
+        } catch (ExistingTuitionOrderException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("You have an ongoing tuition order with the tutor");
+        }
+
 
         if (savedTuitionOrder == null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(null);

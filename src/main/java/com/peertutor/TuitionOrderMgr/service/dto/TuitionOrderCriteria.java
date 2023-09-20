@@ -43,6 +43,18 @@ public class TuitionOrderCriteria implements Serializable, Criteria {
         }
     }
 
+    public TuitionOrderCriteria(Long studentId, Long tutorId,
+                                Integer status) {
+        this.studentId = new LongFilter();
+        this.studentId.setEquals(studentId);
+
+        this.tutorId = new LongFilter();
+        this.tutorId.setEquals(tutorId);
+
+        this.status = new IntegerFilter();
+        this.status.setEquals(status);
+    }
+
     public TuitionOrderCriteria(TuitionOrderCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.studentId = other.studentId == null ? null : other.studentId.copy();

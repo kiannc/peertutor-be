@@ -11,7 +11,8 @@ import java.util.List;
 
 @Repository
 public interface TuitionOrderRepository extends JpaRepository<TuitionOrder, Long>, JpaSpecificationExecutor<TuitionOrder> {
-    TuitionOrder findByStudentIdAndTutorId(long studentId, long tutorId);
+    List<TuitionOrder> findByStudentIdAndTutorId(long studentId, long tutorId);
+    List<TuitionOrder> findByStudentIdAndTutorIdAndStatus(long studentId, long tutorId, int status);
     List<TuitionOrder> findBySelectedDatesContainingAndStatusAndTutorId(String dates, int status, long tutorId);
 }
 

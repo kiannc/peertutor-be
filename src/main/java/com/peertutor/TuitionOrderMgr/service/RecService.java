@@ -2,6 +2,7 @@ package com.peertutor.TuitionOrderMgr.service;
 
 import com.peertutor.TuitionOrderMgr.model.Tutor;
 import com.peertutor.TuitionOrderMgr.repository.TutorRepository;
+import com.peertutor.TuitionOrderMgr.service.dto.BookmarkDTO;
 import com.peertutor.TuitionOrderMgr.service.dto.TutorDTO;
 import com.peertutor.TuitionOrderMgr.service.mapper.TutorMapper;
 import com.peertutor.TuitionOrderMgr.util.AppConfig;
@@ -23,6 +24,7 @@ import software.amazon.awssdk.services.personalizeruntime.model.PredictedItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class RecService {
@@ -35,6 +37,8 @@ public class RecService {
     private TutorRepository tutorRepository;
     @Autowired
     private TutorQueryService tutorQueryService;
+    @Autowired
+    private BookmarkService bookmarkService;
 
     public RecService(TutorRepository tutorRepository, TutorMapper tutorMapper) {
         this.tutorRepository = tutorRepository;
@@ -54,7 +58,11 @@ public class RecService {
         System.out.println("result" + result);
 
         List<TutorDTO> res = tutorMapper.toDto(result).subList(0, Math.min(result.size(), 3));
-        System.out.println("res" + res);
+        res = res.stream().map(tutorDTO -> {
+            BookmarkDTO isBookMarked = bookmarkService.getBookmark(id, tutorDTO.getId());
+            tutorDTO.setBookmarked(isBookMarked != null);
+            return tutorDTO;
+        }).collect(Collectors.toList());
 
         return res;
     }

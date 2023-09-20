@@ -58,6 +58,13 @@ public class TuitionOrderQueryService extends QueryService<TuitionOrder> {
             .map(tuitionOrderMapper::toDto);
     }
 
+    @Transactional(readOnly = true)
+    public List<TuitionOrder> findByCriteriaWithoutPage(TuitionOrderCriteria criteria) {
+        log.debug("find by criteria : {}", criteria);
+        final Specification<TuitionOrder> specification = createSpecification(criteria);
+        return tuitionOrderRepository.findAll(specification);
+    }
+
     /**
      * Function to convert {@link TuitionOrderCriteria} to a {@link Specification}
      * @param criteria The object which holds all the filters, which the entities should match.

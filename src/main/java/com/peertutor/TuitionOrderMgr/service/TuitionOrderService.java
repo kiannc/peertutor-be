@@ -1,24 +1,24 @@
 package com.peertutor.TuitionOrderMgr.service;
 
+import com.peertutor.TuitionOrderMgr.exception.ExistingTuitionOrderException;
 import com.peertutor.TuitionOrderMgr.model.TuitionOrder;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.request.TuitionOrderReq;
 import com.peertutor.TuitionOrderMgr.repository.TuitionOrderRepository;
 import com.peertutor.TuitionOrderMgr.service.dto.*;
 import com.peertutor.TuitionOrderMgr.service.mapper.TuitionOrderMapper;
+import io.github.jhipster.service.filter.IntegerFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,11 +96,20 @@ public class TuitionOrderService {
         return page;
     }
 
-    public TuitionOrderDTO createTuitionOrder(TuitionOrderReq req) {
+    public TuitionOrderDTO createTuitionOrder(TuitionOrderReq req) throws ExistingTuitionOrderException {
         TuitionOrder tuitionOrder = new TuitionOrder();
 
         if (req.id != null) {
             tuitionOrder = tuitionOrderRepository.findById(req.id).orElse(new TuitionOrder());
+        }
+
+        updatePastTuitionOrderStatus(req.studentId, req.tutorId);
+        TuitionOrderCriteria criteria = new TuitionOrderCriteria(req.studentId, req.tutorId, 1);
+        criteria.setStatus((IntegerFilter) new IntegerFilter().setIn(Arrays.asList(0, 1)));
+        List<TuitionOrder> unfinishedTuitionOrders = tuitionOrderQueryService.findByCriteriaWithoutPage(criteria);
+
+        if (!unfinishedTuitionOrders.isEmpty()) {
+            throw new ExistingTuitionOrderException("You have an existing tuition order with the tutor");
         }
 
         tuitionOrder.setStatus(req.status);
@@ -156,6 +165,31 @@ public class TuitionOrderService {
         TuitionOrderDTO result = tuitionOrderMapper.toDto(tuitionOrder.get());
 
         return result;
+    }
+
+    public void updatePastTuitionOrderStatus(Long studentId, Long tutorId) {
+        List<TuitionOrder> tuitionOrder = tuitionOrderRepository.findByStudentIdAndTutorId(studentId, tutorId);
+        tuitionOrder.stream().filter(order -> {
+                    boolean containFutureDays = Arrays
+                            .stream(
+                                    order.getSelectedDates()
+                                            .replaceAll("\\[", "")
+                                            .replaceAll("\\]", "")
+                                            .split(","))
+                            .map(date -> LocalDate.parse(date.trim())).anyMatch(date -> {
+                                LocalDate now = LocalDate.now();
+                                return now.isBefore(date);
+                            });
+                    return !containFutureDays && order.getStatus() == 1;
+                })
+                .forEach(order -> {
+                    try {
+                        order.setStatus(3);
+                        tuitionOrderRepository.save(order);
+                    } catch (Exception e) {
+                        logger.error("TuitionOrder Profile Update Failed: " + e.getMessage());
+                    }
+                });
     }
 
     public void removeConflictTuitionOrder(List<Date> selectedDates, Long tutorId) {
