@@ -71,48 +71,6 @@ public class TuitionOrderService {
         return result;
     }
 
-    public List<TuitionOrderDetailedDTO> getTuitionOrderDetails(String name, String sessionToken) {
-
-        logger.debug("Retrieving all tutor names and ids");
-        List<TutorDTO> tutorList = externalCallService.getAllTutorName(name, sessionToken);
-
-        logger.debug("Retrieving all student names and ids");
-        List<StudentDTO> studentList = externalCallService.getAllStudentName(name, sessionToken);
-
-        // convert to map for processing
-        Map<Long, String> studentNameIdMap = studentList.stream()
-                .collect(Collectors.toMap(
-                        StudentDTO::getId, StudentDTO::getDisplayName));
-
-        List<TuitionOrderDTO> tuitionOrders = getAllTuitionOrder();
-
-        // convert to map for processing
-        Map<Long, String> tutorNameIdMap = tutorList.stream()
-                .collect(Collectors.toMap(
-                        TutorDTO::getId, TutorDTO::getDisplayName));
-
-        // manual join table.........
-        logger.debug("Combine multiple tables - student, tutor, tuition order");
-        List<TuitionOrderDetailedDTO> detailedOrders = tuitionOrders.stream().map(order -> {
-            TuitionOrderDetailedDTO newOrder = new TuitionOrderDetailedDTO();
-
-            newOrder.setId(order.getId());
-
-            newOrder.setTutorId(order.getTutorId());
-            newOrder.setTutorName(tutorNameIdMap.get(order.getTutorId()));
-
-            newOrder.setStudentId(order.getStudentId());
-            newOrder.setStudentName(studentNameIdMap.get(order.getStudentId()));
-            newOrder.setSelectedDates(order.getSelectedDates());
-
-            newOrder.setStatus(order.getStatus());
-
-            return newOrder;
-        }).collect(Collectors.toList());
-        logger.debug("Successfully joined data");
-        return detailedOrders;
-    }
-
     public Page<TuitionOrderDTO> getTuitionOrderByCriteria(TuitionOrderCriteria criteria, Pageable pageable) {
         Page<TuitionOrderDTO> page = tuitionOrderQueryService.findByCriteria(criteria, pageable);
         return page;
@@ -132,9 +90,12 @@ public class TuitionOrderService {
             if (!unfinishedTuitionOrders.isEmpty()) {
                 throw new ExistingTuitionOrderException("You have an existing tuition order with the tutor");
             }
+
+            // can only create tuition order with pending status
+            tuitionOrder.setStatus(0);
         }
 
-        if (req.status != null) {
+        if (req.status != null && req.id != null) {
             tuitionOrder.setStatus(req.status);
         }
 
