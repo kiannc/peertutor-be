@@ -101,43 +101,53 @@ public class TuitionOrderService {
 
         if (req.id != null) {
             tuitionOrder = tuitionOrderRepository.findById(req.id).orElse(new TuitionOrder());
-        }
-
-        updatePastTuitionOrderStatus(req.studentId, req.tutorId);
-        TuitionOrderCriteria criteria = new TuitionOrderCriteria(req.studentId, req.tutorId, 1);
-        criteria.setStatus((IntegerFilter) new IntegerFilter().setIn(Arrays.asList(0, 1)));
-        List<TuitionOrder> unfinishedTuitionOrders = tuitionOrderQueryService.findByCriteriaWithoutPage(criteria);
-
-        if (!unfinishedTuitionOrders.isEmpty()) {
-            throw new ExistingTuitionOrderException("You have an existing tuition order with the tutor");
-        }
-
-        tuitionOrder.setStatus(req.status);
-        tuitionOrder.setStudentId(req.studentId);
-        tuitionOrder.setTutorId(req.tutorId);
-
-        Collections.sort(req.selectedDates);
-
-        List<Date> availableDates = tutorCalendarService.getTutorCalendar(req.tutorId).availableDate;
-        String selectedDates = String.join(";", req.selectedDates.toString());
-        if (req.status != null && req.status != 2) {
-
-            List<LocalDate> aDate = availableDates.stream()
-                    .map(Date::toLocalDate)
-                    .collect(Collectors.toList());
-            List<LocalDate> sDate = req.selectedDates.stream()
-                    .map(Date::toLocalDate)
-                    .collect(Collectors.toList());
-
-            if (!aDate.containsAll(sDate)) {
-                logger.info("Tutor is not available on selected dates");
-                return null;
-            } else {
-                logger.info("Tutor is available on selected dates");
+        } else {
+            // Detecting Overlapping tuition Order
+            updatePastTuitionOrderStatus(req.studentId, req.tutorId);
+            TuitionOrderCriteria criteria = new TuitionOrderCriteria(req.studentId, req.tutorId, 1);
+            criteria.setStatus((IntegerFilter) new IntegerFilter().setIn(Arrays.asList(0, 1)));
+            List<TuitionOrder> unfinishedTuitionOrders = tuitionOrderQueryService.findByCriteriaWithoutPage(criteria);
+            if (!unfinishedTuitionOrders.isEmpty()) {
+                throw new ExistingTuitionOrderException("You have an existing tuition order with the tutor");
             }
         }
 
-        tuitionOrder.setSelectedDates(selectedDates);
+        if (req.status != null) {
+            tuitionOrder.setStatus(req.status);
+        }
+
+        if (req.studentId != null) {
+            tuitionOrder.setStudentId(req.studentId);
+        }
+
+        if (req.tutorId != null) {
+            tuitionOrder.setTutorId(req.tutorId);
+        }
+
+        List<Date> availableDates = tutorCalendarService.getTutorCalendar(req.tutorId).availableDate;
+        if (req.selectedDates != null) {
+            Collections.sort(req.selectedDates);
+            String selectedDates = String.join(";", req.selectedDates.toString());
+
+            if (req.status != null && req.status != 2) {
+                List<LocalDate> aDate = availableDates.stream()
+                        .map(Date::toLocalDate)
+                        .collect(Collectors.toList());
+                List<LocalDate> sDate = req.selectedDates.stream()
+                        .map(Date::toLocalDate)
+                        .collect(Collectors.toList());
+
+                if (!aDate.containsAll(sDate)) {
+                    logger.info("Tutor is not available on selected dates");
+                    return null;
+                } else {
+                    logger.info("Tutor is available on selected dates");
+                }
+            }
+
+            tuitionOrder.setSelectedDates(selectedDates);
+        }
+
 
         try {
             tuitionOrder = tuitionOrderRepository.save(tuitionOrder);
@@ -145,7 +155,8 @@ public class TuitionOrderService {
             logger.error("TuitionOrder Profile Creation Failed: " + e.getMessage());
             return null;
         } finally {
-            if (req.id != null && req.status == 1) {
+            if (req.id != null && req.status == 1 && req.selectedDates != null) {
+                String selectedDates = String.join(";", req.selectedDates.toString());
                 removeConflictTuitionOrder(req.selectedDates, req.tutorId);
                 tutorCalendarService.deleteAvailableDates(req.tutorId, selectedDates);
             }
