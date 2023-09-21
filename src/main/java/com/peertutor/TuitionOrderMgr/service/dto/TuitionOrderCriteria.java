@@ -37,10 +37,11 @@ public class TuitionOrderCriteria implements Serializable, Criteria {
             this.tutorId.setEquals(tutorId.get());
         }
 
+        this.status = new IntegerFilter();
         if (status.isPresent()) {
-            this.status = new IntegerFilter();
             this.status.setEquals(status.get());
         }
+        this.status.setNotEquals(3);
     }
 
     public TuitionOrderCriteria(Long studentId, Long tutorId,
@@ -53,6 +54,7 @@ public class TuitionOrderCriteria implements Serializable, Criteria {
 
         this.status = new IntegerFilter();
         this.status.setEquals(status);
+        this.status.setNotEquals(3);
     }
 
     public TuitionOrderCriteria(TuitionOrderCriteria other) {
@@ -73,10 +75,12 @@ public class TuitionOrderCriteria implements Serializable, Criteria {
             this.tutorId.setEquals(req.tutorId);
         }
 
+        this.status = new IntegerFilter();
         if (req.status != null) {
-            this.status = new IntegerFilter();
+
             this.status.setEquals(req.status);
         }
+        this.status.setNotEquals(3);
     }
 
     @Override

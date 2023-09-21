@@ -55,7 +55,7 @@ public class TuitionOrderService {
 
     public Page<TuitionOrderDetailedDTO> getTuitionOrderDetailsByCriteria(TuitionOrderCriteria criteria, Pageable pageable) {
         Page<TuitionOrderDTO> page = tuitionOrderQueryService.findByCriteria(criteria, pageable);
-
+        updatePastTuitionOrderStatus();
         Page<TuitionOrderDetailedDTO> result = page.map(order -> {
             TuitionOrderDetailedDTO newOrder = new TuitionOrderDetailedDTO();
             newOrder.setId(order.getId());
@@ -83,7 +83,7 @@ public class TuitionOrderService {
             tuitionOrder = tuitionOrderRepository.findById(req.id).orElse(new TuitionOrder());
         } else {
             // Detecting Overlapping tuition Order
-            updatePastTuitionOrderStatus(req.studentId, req.tutorId);
+            updatePastTuitionOrderStatus();
             TuitionOrderCriteria criteria = new TuitionOrderCriteria(req.studentId, req.tutorId, 1);
             criteria.setStatus((IntegerFilter) new IntegerFilter().setIn(Arrays.asList(0, 1)));
             List<TuitionOrder> unfinishedTuitionOrders = tuitionOrderQueryService.findByCriteriaWithoutPage(criteria);
@@ -138,7 +138,7 @@ public class TuitionOrderService {
             logger.error("TuitionOrder Profile Creation Failed: " + e.getMessage());
             return null;
         } finally {
-            if (req.id != null && req.status == 1 && req.selectedDates != null) {
+            if (req.id != null && req.status == 1 & req.selectedDates != null) {
                 String selectedDates = String.join(";", req.selectedDates.toString());
                 removeConflictTuitionOrder(req.selectedDates, req.tutorId);
                 tutorCalendarService.deleteAvailableDates(req.tutorId, selectedDates);
@@ -161,8 +161,8 @@ public class TuitionOrderService {
         return result;
     }
 
-    public void updatePastTuitionOrderStatus(Long studentId, Long tutorId) {
-        List<TuitionOrder> tuitionOrder = tuitionOrderRepository.findByStudentIdAndTutorId(studentId, tutorId);
+    public void updatePastTuitionOrderStatus() {
+        List<TuitionOrder> tuitionOrder = tuitionOrderRepository.findByStatus(1);
         tuitionOrder.stream().filter(order -> {
                     boolean containFutureDays = Arrays
                             .stream(
@@ -172,7 +172,8 @@ public class TuitionOrderService {
                                             .split(","))
                             .map(date -> LocalDate.parse(date.trim())).anyMatch(date -> {
                                 LocalDate now = LocalDate.now();
-                                return now.isBefore(date);
+                                boolean test = now.isAfter(date);
+                                return now.isAfter(date) && !now.isEqual(date);
                             });
                     return !containFutureDays && order.getStatus() == 1;
                 })

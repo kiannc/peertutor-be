@@ -13,6 +13,7 @@ import java.util.List;
 public interface TuitionOrderRepository extends JpaRepository<TuitionOrder, Long>, JpaSpecificationExecutor<TuitionOrder> {
     List<TuitionOrder> findByStudentIdAndTutorId(long studentId, long tutorId);
     List<TuitionOrder> findByStudentIdAndTutorIdAndStatus(long studentId, long tutorId, int status);
+    List<TuitionOrder> findByStatus(int status);
     List<TuitionOrder> findBySelectedDatesContainingAndStatusAndTutorId(String dates, int status, long tutorId);
 }
 
