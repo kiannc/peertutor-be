@@ -35,6 +35,10 @@ public class TuitionOrderService {
     @Autowired
     private TutorCalendarService tutorCalendarService;
     @Autowired
+    private TutorService tutorService;
+    @Autowired
+    private StudentService studentService;
+    @Autowired
     private ExternalCallService externalCallService;
 
     public TuitionOrderService(TuitionOrderRepository tuitionOrderRepository, TuitionOrderMapper tuitionOrderMapper) {
@@ -47,6 +51,24 @@ public class TuitionOrderService {
 
         return orders.stream().map(tuitionOrderMapper::toDto).collect(Collectors.toList());
 
+    }
+
+    public Page<TuitionOrderDetailedDTO> getTuitionOrderDetailsByCriteria(TuitionOrderCriteria criteria, Pageable pageable) {
+        Page<TuitionOrderDTO> page = tuitionOrderQueryService.findByCriteria(criteria, pageable);
+
+        Page<TuitionOrderDetailedDTO> result = page.map(order -> {
+            TuitionOrderDetailedDTO newOrder = new TuitionOrderDetailedDTO();
+            newOrder.setId(order.getId());
+            newOrder.setTutorId(order.getTutorId());
+            newOrder.setTutorName(tutorService.getTutorProfileById(order.getTutorId()).getDisplayName());
+            newOrder.setStudentId(order.getStudentId());
+            newOrder.setStudentName(studentService.getStudentProfileById(order.getStudentId()).getDisplayName());
+            newOrder.setSelectedDates(order.getSelectedDates());
+            newOrder.setStatus(order.getStatus());
+            return newOrder;
+        });
+
+        return result;
     }
 
     public List<TuitionOrderDetailedDTO> getTuitionOrderDetails(String name, String sessionToken) {

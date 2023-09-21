@@ -13,6 +13,7 @@ import io.github.jhipster.web.util.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -85,18 +86,22 @@ public class TuitionOrderController {
     @GetMapping("/detailedTuitionOrders")
     public ResponseEntity<List<TuitionOrderDetailedDTO>> getAllDetailedTuitionOrders(
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken
+            @RequestParam(name = "sessionToken") String sessionToken,
+            @RequestParam(name = "studentId") Optional<Long> studentId,
+            @RequestParam(name = "tutorId") Optional<Long> tutorId,
+            @RequestParam(name = "status") Optional<Integer> status,
+            @PageableDefault(size = 500) Pageable pageable
     ) {
-        System.out.println("Authenticating...");
         boolean result = authService.getAuthentication(name, sessionToken);
         if (!result) {
-            System.out.println("Not authenticated");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
-        List<TuitionOrderDetailedDTO> tuitionOrders = tuitionOrderService.getTuitionOrderDetails(name, sessionToken);
 
-        System.out.println("finally, "+ tuitionOrders);
-        return ResponseEntity.ok().body(tuitionOrders);
+        TuitionOrderCriteria criteria = new TuitionOrderCriteria(studentId, tutorId, status);
+        Page<TuitionOrderDetailedDTO> page = tuitionOrderService.getTuitionOrderDetailsByCriteria(criteria, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/tuitionOrders")
