@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class TutorCalendarService{
+public class TutorCalendarService {
 
     private static final Logger logger = LoggerFactory.getLogger(TutorCalendarService.class);
     private final TutorCalendarMapper tutorCalendarMapper;
@@ -33,19 +34,25 @@ public class TutorCalendarService{
     }
 
     public List<TutorCalendar> addAvailableDate(TutorCalendarReq req) {
-        tutorCalendarRepository.deleteAllByTutorId(req.tutorId);
+        Date currentDate = Date.valueOf(LocalDate.now());
+        tutorCalendarRepository.deleteAllByTutorIdAndAvailableDateGreaterThan(req.tutorId, currentDate);
+        tutorCalendarRepository.deleteAllByTutorIdAndAvailableDate(req.tutorId, currentDate);
 
-        req.availableDates.stream().forEach(date -> {
-            TutorCalendar tutorCalendar = new TutorCalendar();
-            tutorCalendar.setTutorId(req.tutorId);
-            tutorCalendar.setAvailableDate(date);
+        req.availableDates
+                .stream()
+                .filter(date -> date.after(currentDate) || date.equals(currentDate))
+                .limit(50)
+                .forEach(date -> {
+                        TutorCalendar tutorCalendar = new TutorCalendar();
+                        tutorCalendar.setTutorId(req.tutorId);
+                        tutorCalendar.setAvailableDate(date);
 
-            try {
-                tutorCalendar = tutorCalendarRepository.save(tutorCalendar);
-            } catch (Exception e) {
-                logger.error("Add available time slot fail: " + e.getMessage());
-            }
-        });
+                        try {
+                            tutorCalendar = tutorCalendarRepository.save(tutorCalendar);
+                        } catch (Exception e) {
+                            logger.error("Add available time slot fail: " + e.getMessage());
+                        }
+                });
 
         return tutorCalendarRepository.findAllByTutorId(req.tutorId);
     }

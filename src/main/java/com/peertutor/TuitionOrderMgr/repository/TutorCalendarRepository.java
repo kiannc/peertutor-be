@@ -14,6 +14,7 @@ public interface TutorCalendarRepository extends JpaRepository<TutorCalendar, Lo
     List<TutorCalendar> findAllByTutorIdAndAvailableDateIn(long id, List<Date> availableDate);
     void deleteAllByTutorIdAndAvailableDateIn(long id, List<Date> availableDate);
     TutorCalendar findByTutorIdAndAvailableDate(long id, Date availableDate);
-    Integer deleteAllByTutorId(long id);
+    Integer deleteAllByTutorIdAndAvailableDateGreaterThan(long id, Date great);
+    Integer deleteAllByTutorIdAndAvailableDate(long id, Date great);
 }
 
