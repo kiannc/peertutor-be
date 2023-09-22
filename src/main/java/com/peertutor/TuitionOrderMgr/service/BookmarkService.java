@@ -4,12 +4,16 @@ import com.peertutor.TuitionOrderMgr.model.Bookmark;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.request.BookmarkReq;
 import com.peertutor.TuitionOrderMgr.repository.BookmarkRepository;
 import com.peertutor.TuitionOrderMgr.service.dto.BookmarkDTO;
+import com.peertutor.TuitionOrderMgr.service.dto.TuitionOrderDTO;
 import com.peertutor.TuitionOrderMgr.service.mapper.BookmarkMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.text.ParseException;
@@ -34,15 +38,11 @@ public class BookmarkService {
     }
 
     // get bookmark by student id
-    public List<BookmarkDTO> getBookmark(Long studentId) {
-        List<Bookmark> bookmark = bookmarkRepository.findByStudentID(studentId);
+    @Transactional(readOnly = true)
+    public Page<BookmarkDTO> getBookmark(Long studentId, Pageable pageable) {
+        Page<BookmarkDTO> bookmark = bookmarkRepository.findByStudentID(studentId, pageable).map(bookmarkMapper::toDto);
 
-        if (bookmark == null) {
-            return null;
-        }
-        List<BookmarkDTO> result = bookmarkMapper.toDto(bookmark);
-
-        return result;
+        return bookmark;
     }
 
     // get bookmark by student id and tutor id
