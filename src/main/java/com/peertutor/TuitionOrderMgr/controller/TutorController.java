@@ -43,11 +43,6 @@ public class TutorController {
 
     @PostMapping(path = "/tutor")
     public @ResponseBody ResponseEntity<TutorProfileRes> createTutorProfile(@RequestBody @Valid TutorProfileReq req) {
-        boolean result = authService.getAuthentication(req.name, req.sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         TutorDTO savedUser;
 
         savedUser = tutorService.createTutorProfile(req);
@@ -69,15 +64,9 @@ public class TutorController {
     @GetMapping(path = "/tutor")
     public @ResponseBody ResponseEntity<TutorProfileRes> getTutorProfile(
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken,
             @RequestParam(name = "accountName") Optional<String> accountName,
             @RequestParam(name = "id") Optional<Long> id
     ) {
-        boolean result = authService.getAuthentication(name, sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         TutorDTO tutorDTO = null;
 
         if (id.isPresent()) {
@@ -103,18 +92,12 @@ public class TutorController {
     @GetMapping(path = "/tutors")
     public @ResponseBody ResponseEntity<List<TutorProfileRes>> getTutorProfile(
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken,
             @RequestParam(name = "displayName") Optional<String> displayName,
             @RequestParam(name = "subjects") Optional<String> subjects,
             @RequestParam(name = "introduction") Optional<String> introduction,
             @RequestParam(name = "certificates") Optional<String> certificates,
             @RequestParam(name = "studentId") Optional<Long> studentId,
             Pageable pageable) {
-        boolean result = authService.getAuthentication(name, sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         TutorCriteria criteria = new TutorCriteria(displayName, subjects, introduction, certificates);
         Page<TutorDTO> page = tutorService.getTutorByCriteria(criteria, pageable, studentId);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);

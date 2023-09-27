@@ -45,18 +45,6 @@ public class TuitionOrderController {
         return "Ok";
     }
 
-    @GetMapping(path = "/test")
-    public @ResponseBody String test(
-            @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken) {
-        List<TutorDTO> res = externalCallService.getAllTutorName(name, sessionToken);
-        List<StudentDTO> res2 = externalCallService.getAllStudentName(name, sessionToken);
-        System.out.println("making api call");
-        System.out.println(res2);
-
-        return "";
-    }
-
     @PostMapping(path = "/tuitionOrder")
     @ExceptionHandler(ExistingTuitionOrderException.class)
     public @ResponseBody ResponseEntity createTuitionProfile(@RequestBody @Valid TuitionOrderReq req) {
