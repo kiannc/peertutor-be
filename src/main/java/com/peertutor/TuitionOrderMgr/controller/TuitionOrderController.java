@@ -60,11 +60,6 @@ public class TuitionOrderController {
     @PostMapping(path = "/tuitionOrder")
     @ExceptionHandler(ExistingTuitionOrderException.class)
     public @ResponseBody ResponseEntity createTuitionProfile(@RequestBody @Valid TuitionOrderReq req) {
-        boolean result = authService.getAuthentication(req.name, req.sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         TuitionOrderDTO savedTuitionOrder;
 
         try {
@@ -86,17 +81,11 @@ public class TuitionOrderController {
     @GetMapping("/detailedTuitionOrders")
     public ResponseEntity<List<TuitionOrderDetailedDTO>> getAllDetailedTuitionOrders(
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken,
             @RequestParam(name = "studentId") Optional<Long> studentId,
             @RequestParam(name = "tutorId") Optional<Long> tutorId,
             @RequestParam(name = "status") Optional<Integer> status,
             @PageableDefault(size = 500) Pageable pageable
     ) {
-        boolean result = authService.getAuthentication(name, sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         TuitionOrderCriteria criteria = new TuitionOrderCriteria(studentId, tutorId, status);
         Page<TuitionOrderDetailedDTO> page = tuitionOrderService.getTuitionOrderDetailsByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -107,17 +96,11 @@ public class TuitionOrderController {
     @GetMapping("/tuitionOrders")
     public ResponseEntity<List<TuitionOrderDTO>> getTuitionOrderByCriteria(
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken,
             @RequestParam(name = "studentId") Optional<Long> studentId,
             @RequestParam(name = "tutorId") Optional<Long> tutorId,
             @RequestParam(name = "status") Optional<Integer> status,
             Pageable pageable
     ) {
-        boolean result = authService.getAuthentication(name, sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         TuitionOrderCriteria criteria = new TuitionOrderCriteria(studentId, tutorId, status);
         Page<TuitionOrderDTO> page = tuitionOrderService.getTuitionOrderByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -127,15 +110,8 @@ public class TuitionOrderController {
     @GetMapping("/tuitionOrder")
     public ResponseEntity<TuitionOrderDTO> getTuitionOrderByCriteria(
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken,
             @RequestParam(name = "id") Long id
     ) {
-        boolean result = authService.getAuthentication(name, sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-        // get student name
-
         // get tutor name
         TuitionOrderDTO tuitionOrder = tuitionOrderService.getTuitionOrderById(id);
 

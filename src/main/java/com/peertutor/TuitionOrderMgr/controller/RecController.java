@@ -36,13 +36,8 @@ public class RecController {
     @GetMapping(path = "/rec")
     public @ResponseBody ResponseEntity<List<TutorDTO>> getTutorProfile(
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken,
             @RequestParam(name = "id") Long id
     ) {
-        boolean result = authService.getAuthentication(name, sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
         List<TutorDTO> tutors = recService.getTutorRec(id);
 
         return ResponseEntity.ok().body(tutors);

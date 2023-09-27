@@ -7,11 +7,6 @@ public class TutorProfileReq {
     @NotNull
     @NotEmpty
     public String name;
-
-    @NotNull
-    @NotEmpty
-    public String sessionToken;
-
     public String displayName;
 
     public String accountName;

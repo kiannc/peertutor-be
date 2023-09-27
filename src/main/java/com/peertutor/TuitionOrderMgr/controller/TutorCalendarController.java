@@ -39,11 +39,6 @@ public class TutorCalendarController {
 	@PostMapping(path = "/calendar")
 	@Transactional
 	public @ResponseBody ResponseEntity<List<TutorCalendar>> addAvailableDate(@RequestBody  @Valid TutorCalendarReq req) {
-
-		boolean result = authService.getAuthentication(req.name, req.sessionToken);
-		if (!result) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-		}
 		if (req.availableDates == null) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 		}
@@ -60,14 +55,7 @@ public class TutorCalendarController {
 	@GetMapping(path = "/calendar")
 	public @ResponseBody ResponseEntity<TutorCalendarRes> getReview(
 			@RequestParam(name = "name") String name,
-			@RequestParam(name = "sessionToken") String sessionToken,
 			@RequestParam(name = "tutorId") Long tutorId) {
-
-		boolean result = authService.getAuthentication(name, sessionToken);
-		if (!result) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-		}
-
 		TutorCalendarRes tutorCalendar = tutorCalendarService.getTutorCalendar(tutorId);
 		return ResponseEntity.ok().body(tutorCalendar);
 	}
@@ -76,14 +64,8 @@ public class TutorCalendarController {
 	@Transactional
 	public @ResponseBody ResponseEntity<TutorCalendarRes> getReview(
 			@RequestParam(name = "name") String name,
-			@RequestParam(name = "sessionToken") String sessionToken,
 			@RequestParam(name = "tutorId") Long tutorId,
 			@RequestParam(name = "dates") String dates) {
-		boolean result = authService.getAuthentication(name, sessionToken);
-		if (!result) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-		}
-
 		tutorCalendarService.deleteAvailableDates(tutorId, dates);
 		return ResponseEntity.ok().body(null);
 	}

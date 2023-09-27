@@ -37,11 +37,6 @@ public class StudentController {
 
     @PostMapping(path = "/student")
     public @ResponseBody ResponseEntity<StudentProfileRes> createStudentProfile(@RequestBody @Valid StudentProfileReq req) {
-        boolean result = authService.getAuthentication(req.name, req.sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         StudentDTO savedUser;
 
         savedUser = studentService.createStudentProfile(req);
@@ -62,15 +57,9 @@ public class StudentController {
     @GetMapping(path = "/student")
     public @ResponseBody ResponseEntity<StudentProfileRes> getStudentProfile(
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken,
             @RequestParam(name = "accountName") Optional<String> accountName,
             @RequestParam(name = "id") Optional<Long> id
     ) {
-        boolean result = authService.getAuthentication(name, sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         StudentDTO studentRetrieved = null;
 
         if (id.isPresent()) {
@@ -95,36 +84,10 @@ public class StudentController {
     @GetMapping(path = "/students")
     public @ResponseBody ResponseEntity<List<StudentDTO>> getStudentProfile(
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken,
             @RequestParam(name = "displayName") Optional<String> displayName,
             Pageable pageable) {
-        boolean result = authService.getAuthentication(name, sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         List<StudentDTO> students = studentService.getAllStudents();
 
-//        StudentProfileRes res = new StudentProfileRes();
-//        res.displayName = studentRetrieved.getDisplayName();
-//        res.introduction = studentRetrieved.getIntroduction();
-//        res.subjects = studentRetrieved.getSubjects();
-//        res.id = studentRetrieved.getId();
-////
-//        TutorCriteria criteria = new TutorCriteria(displayName, subjects, introduction, certificates);
-//        Page<TutorDTO> page = tutorService.getTutorByCriteria(criteria, pageable);
-//        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-//        List<TutorProfileRes> filteredTutors = page.getContent().stream().map(tutorDTO -> {
-//            TutorProfileRes res = new TutorProfileRes();
-//            res.displayName = tutorDTO.getDisplayName();
-//            res.introduction = tutorDTO.getIntroduction();
-//            res.subjects = tutorDTO.getSubjects();
-//            res.certificates = tutorDTO.getCertificates();
-//            res.id = tutorDTO.getId();
-//
-//            return res;Ï
-//        }).collect(Collectors.toList());
         return ResponseEntity.ok().body(students);
     }
-
 }

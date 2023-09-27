@@ -8,10 +8,6 @@ public class ReviewReq {
     @NotEmpty
     public String name;
 
-    @NotNull
-    @NotEmpty
-    public String sessionToken;
-    
     public Long id;
 
 	public Long tutorID;

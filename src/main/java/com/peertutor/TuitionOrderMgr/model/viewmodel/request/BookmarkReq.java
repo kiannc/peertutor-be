@@ -8,10 +8,6 @@ public class BookmarkReq {
     @NotEmpty
     public String name;
 
-    @NotNull
-    @NotEmpty
-    public String sessionToken;
-
     public Long id;
 
     @NotNull

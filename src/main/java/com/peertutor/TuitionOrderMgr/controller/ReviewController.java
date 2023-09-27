@@ -76,12 +76,6 @@ public class ReviewController {
 
 	@PostMapping(path = "/review")
 	public @ResponseBody ResponseEntity<ReviewRes> addNewReview(@RequestBody  @Valid ReviewReq req) {
-
-		boolean result = authService.getAuthentication(req.name, req.sessionToken);
-		if (!result) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-		}
-
 		ReviewDTO saveReview;
 		saveReview = reviewService.addReview(req);
 
@@ -99,13 +93,7 @@ public class ReviewController {
 	@GetMapping(path = "/reviews")
 	public @ResponseBody ResponseEntity<List<ReviewDTO>> getReview(
 			@RequestParam(name = "name") String name,
-			@RequestParam(name = "sessionToken") String sessionToken,
 			@RequestParam(name = "tutorID") Long tutorID) {
-
-		boolean result = authService.getAuthentication(name, sessionToken);
-		if (!result) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-		}
 
 		List<ReviewDTO> saveReview;
 		saveReview = reviewService.getAllReview(tutorID);

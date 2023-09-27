@@ -9,11 +9,6 @@ public class TutorCalendarReq {
 	@NotNull
     @NotEmpty
     public String name;
-
-    @NotNull
-    @NotEmpty
-    public String sessionToken;
-
     public Long id;
 
 	public Long tutorId;

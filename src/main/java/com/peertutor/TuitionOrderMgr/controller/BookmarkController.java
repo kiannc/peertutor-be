@@ -42,11 +42,6 @@ public class BookmarkController {
 
     @PostMapping(path = "/bookmark")
     public @ResponseBody ResponseEntity<BookmarkRes> createBookmark(@RequestBody @Valid BookmarkReq req) {
-        boolean result = authService.getAuthentication(req.name, req.sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         BookmarkDTO savedBookmark;
 
         savedBookmark = bookmarkService.createBookmark(req);
@@ -63,14 +58,8 @@ public class BookmarkController {
     @GetMapping(path = "/bookmark")
     public @ResponseBody ResponseEntity<List<BookmarkDTO>> getBookmark(
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken,
             @RequestParam(name = "studentId") Long studentId,
             Pageable pageable) {
-        boolean result = authService.getAuthentication(name, sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         Page<BookmarkDTO> page = bookmarkService.getBookmark(studentId, pageable);
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -81,15 +70,9 @@ public class BookmarkController {
     @Transactional
     public @ResponseBody ResponseEntity<List<BookmarkDTO>> deleteCal(
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "sessionToken") String sessionToken,
             @RequestParam(name = "id") Optional<Long> id,
             @RequestParam(name = "tutorId") Optional<Long> tutorId,
             @RequestParam(name = "studentId") Optional<Long> studentId) {
-        boolean result = authService.getAuthentication(name, sessionToken);
-        if (!result) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
         if (id.isPresent()) {
             bookmarkService.deleteBookmarkById(id.get());
         } else {
