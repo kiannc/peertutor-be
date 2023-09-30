@@ -173,7 +173,7 @@ public class TuitionOrderService {
                             .map(date -> LocalDate.parse(date.trim())).anyMatch(date -> {
                                 LocalDate now = LocalDate.now();
                                 boolean test = now.isAfter(date);
-                                return now.isAfter(date) && !now.isEqual(date);
+                                return now.isBefore(date) && !now.isEqual(date);
                             });
                     return !containFutureDays && order.getStatus() == 1;
                 })
