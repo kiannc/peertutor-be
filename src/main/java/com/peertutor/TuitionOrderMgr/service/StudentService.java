@@ -1,5 +1,6 @@
 package com.peertutor.TuitionOrderMgr.service;
 
+import com.peertutor.TuitionOrderMgr.exception.ExistingTuitionOrderException;
 import com.peertutor.TuitionOrderMgr.model.Student;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.request.StudentProfileReq;
 import com.peertutor.TuitionOrderMgr.repository.StudentRepository;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -57,7 +57,7 @@ public class StudentService {
         return result;
     }
 
-    public StudentDTO createStudentProfile(StudentProfileReq req) {
+    public StudentDTO createStudentProfile(StudentProfileReq req) throws ExistingTuitionOrderException {
         Student student = studentRepository.findByAccountName(req.name);
 
         if (student == null) {
@@ -66,6 +66,9 @@ public class StudentService {
         }
 
         if (req.displayName != null && !req.displayName.trim().isEmpty()) {
+            if(req.displayName.length() <= 20){
+                throw new ExistingTuitionOrderException("Your Display Name must not exceed 20 characters");
+            }
             student.setDisplayName(req.displayName);
         } else {
             student.setDisplayName(req.name);

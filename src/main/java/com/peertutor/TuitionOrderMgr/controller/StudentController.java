@@ -1,5 +1,6 @@
 package com.peertutor.TuitionOrderMgr.controller;
 
+import com.peertutor.TuitionOrderMgr.exception.ExistingTuitionOrderException;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.request.StudentProfileReq;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.response.StudentProfileRes;
 import com.peertutor.TuitionOrderMgr.repository.StudentRepository;
@@ -36,7 +37,7 @@ public class StudentController {
     }
 
     @PostMapping(path = "/student")
-    public @ResponseBody ResponseEntity<StudentProfileRes> createStudentProfile(@RequestBody @Valid StudentProfileReq req) {
+    public @ResponseBody ResponseEntity<StudentProfileRes> createStudentProfile(@RequestBody @Valid StudentProfileReq req) throws ExistingTuitionOrderException {
         StudentDTO savedUser;
 
         savedUser = studentService.createStudentProfile(req);
