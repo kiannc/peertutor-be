@@ -66,7 +66,7 @@ public class StudentService {
         }
 
         if (req.displayName != null && !req.displayName.trim().isEmpty()) {
-            if(req.displayName.length() <= 20){
+            if(req.displayName.length() >= 20){
                 throw new ExistingTuitionOrderException("Your Display Name must not exceed 20 characters");
             }
             student.setDisplayName(req.displayName);
