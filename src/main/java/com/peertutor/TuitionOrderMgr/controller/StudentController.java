@@ -1,6 +1,7 @@
 package com.peertutor.TuitionOrderMgr.controller;
 
 import com.peertutor.TuitionOrderMgr.exception.ExistingTuitionOrderException;
+import com.peertutor.TuitionOrderMgr.exception.InputValidationException;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.request.StudentProfileReq;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.response.StudentProfileRes;
 import com.peertutor.TuitionOrderMgr.repository.StudentRepository;
@@ -8,6 +9,10 @@ import com.peertutor.TuitionOrderMgr.service.AuthService;
 import com.peertutor.TuitionOrderMgr.service.StudentService;
 import com.peertutor.TuitionOrderMgr.service.dto.StudentDTO;
 import com.peertutor.TuitionOrderMgr.util.AppConfig;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,27 +35,45 @@ public class StudentController {
     private StudentService studentService;
     @Autowired
     private AuthService authService;
-
+    private static final Logger logger = LoggerFactory.getLogger(StudentService.class);
     @GetMapping(path = "/health")
     public @ResponseBody String healthCheck() {
         return "Ok 3";
     }
 
     @PostMapping(path = "/student")
-    public @ResponseBody ResponseEntity<StudentProfileRes> createStudentProfile(@RequestBody @Valid StudentProfileReq req) throws ExistingTuitionOrderException {
+    public @ResponseBody ResponseEntity<StudentProfileRes> createStudentProfile(@RequestBody @Valid StudentProfileReq req) throws ExistingTuitionOrderException, InputValidationException {
         StudentDTO savedUser;
+
+        PolicyFactory sanitizer = Sanitizers.FORMATTING;
+        sanitizer.sanitize(req.name);
+        sanitizer.sanitize(req.displayName);
+        sanitizer.sanitize(req.accountName);
+        sanitizer.sanitize(req.introduction);
+        sanitizer.sanitize(req.subjects);
 
         savedUser = studentService.createStudentProfile(req);
 
         if (savedUser == null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         }
+        StudentProfileRes res = null;
 
-        StudentProfileRes res = new StudentProfileRes();
-        res.displayName = savedUser.getDisplayName();
-        res.introduction = savedUser.getIntroduction();
-        res.subjects = savedUser.getSubjects();
-        res.id = savedUser.getId();
+         res = new StudentProfileRes();
+         if (req.displayName.length() > 20) {
+             logger.error("Your display name must not exceed 20 characters");
+             throw new InputValidationException("Your display name must not exceed 20 characters");
+         } else {
+             res.displayName = savedUser.getDisplayName();
+         }
+         if (req.introduction.length() > 255) {
+             logger.error("Your introduction must not exceed 255 characters");
+             throw new InputValidationException("Your introduction must not exceed 255 characters");
+         } else {
+             res.introduction = savedUser.getIntroduction();
+         }
+         res.subjects = savedUser.getSubjects();
+         res.id = savedUser.getId();
 
         return ResponseEntity.ok().body(res);
     }
