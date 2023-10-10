@@ -5,3 +5,4 @@ public class ExistingTuitionOrderException extends Exception {
         super(errorMessage);
     }
 }
+

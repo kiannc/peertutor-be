@@ -1,14 +1,19 @@
 package com.peertutor.TuitionOrderMgr.controller;
 
-import com.peertutor.TuitionOrderMgr.repository.TutorRepository;
-import com.peertutor.TuitionOrderMgr.service.AuthService;
-import com.peertutor.TuitionOrderMgr.util.AppConfig;
+import com.peertutor.TuitionOrderMgr.exception.InputValidationException;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.request.TutorProfileReq;
 import com.peertutor.TuitionOrderMgr.model.viewmodel.response.TutorProfileRes;
+import com.peertutor.TuitionOrderMgr.repository.TutorRepository;
+import com.peertutor.TuitionOrderMgr.service.AuthService;
 import com.peertutor.TuitionOrderMgr.service.TutorService;
 import com.peertutor.TuitionOrderMgr.service.dto.TutorCriteria;
 import com.peertutor.TuitionOrderMgr.service.dto.TutorDTO;
+import com.peertutor.TuitionOrderMgr.util.AppConfig;
 import io.github.jhipster.web.util.PaginationUtil;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -36,14 +42,23 @@ public class TutorController {
     @Autowired
     private AuthService authService;
 
+    private static final Logger logger = LoggerFactory.getLogger(TutorService.class);
     @GetMapping(path = "/health")
     public @ResponseBody String healthCheck() {
         return "Ok 2";
     }
 
     @PostMapping(path = "/tutor")
-    public @ResponseBody ResponseEntity<TutorProfileRes> createTutorProfile(@RequestBody @Valid TutorProfileReq req) {
+    public @ResponseBody ResponseEntity<TutorProfileRes> createTutorProfile(@RequestBody @Valid @Validated TutorProfileReq req) throws InputValidationException {
         TutorDTO savedUser;
+
+        PolicyFactory sanitizer = Sanitizers.FORMATTING;
+        sanitizer.sanitize(req.name);
+        sanitizer.sanitize(req.displayName);
+        sanitizer.sanitize(req.accountName);
+        sanitizer.sanitize(req.introduction);
+        sanitizer.sanitize(req.subjects);
+        sanitizer.sanitize(req.certificates);
 
         savedUser = tutorService.createTutorProfile(req);
 
@@ -52,8 +67,18 @@ public class TutorController {
         }
 
         com.peertutor.TuitionOrderMgr.model.viewmodel.response.TutorProfileRes res = new TutorProfileRes();
-        res.displayName = savedUser.getDisplayName();
-        res.introduction = savedUser.getIntroduction();
+        if (req.displayName.length() > 20) {
+            logger.error("Your display name must not exceed 20 characters");
+            throw new InputValidationException("Your display name must not exceed 20 characters");
+        }else {
+            res.displayName = savedUser.getDisplayName();
+        }
+        if (req.introduction.length() > 255) {
+            logger.error("Your introduction must not exceed 255 characters");
+            throw new InputValidationException("Your introduction must not exceed 255 characters");
+        }else {
+            res.introduction = savedUser.getIntroduction();
+        }
         res.subjects = savedUser.getSubjects();
         res.certificates = savedUser.getCertificates();
         res.id = savedUser.getId();
