@@ -54,8 +54,8 @@ public class TuitionOrderService {
     }
 
     public Page<TuitionOrderDetailedDTO> getTuitionOrderDetailsByCriteria(TuitionOrderCriteria criteria, Pageable pageable) {
-        Page<TuitionOrderDTO> page = tuitionOrderQueryService.findByCriteria(criteria, pageable);
         updatePastTuitionOrderStatus();
+        Page<TuitionOrderDTO> page = tuitionOrderQueryService.findByCriteria(criteria, pageable);
         Page<TuitionOrderDetailedDTO> result = page.map(order -> {
             TuitionOrderDetailedDTO newOrder = new TuitionOrderDetailedDTO();
             newOrder.setId(order.getId());
@@ -163,6 +163,29 @@ public class TuitionOrderService {
 
     public void updatePastTuitionOrderStatus() {
         List<TuitionOrder> tuitionOrder = tuitionOrderRepository.findByStatus(1);
+        tuitionOrder.stream().filter(order -> {
+                    boolean containFutureDays = Arrays
+                            .stream(
+                                    order.getSelectedDates()
+                                            .replaceAll("\\[", "")
+                                            .replaceAll("\\]", "")
+                                            .split(","))
+                            .map(date -> LocalDate.parse(date.trim())).anyMatch(date -> {
+                                LocalDate now = LocalDate.now();
+                                boolean test = now.isAfter(date);
+                                return now.isBefore(date) && !now.isEqual(date);
+                            });
+                    return !containFutureDays && order.getStatus() == 1;
+                })
+                .forEach(order -> {
+                    try {
+                        order.setStatus(3);
+                        tuitionOrderRepository.save(order);
+                    } catch (Exception e) {
+                        logger.error("TuitionOrder Profile Update Failed: " + e.getMessage());
+                    }
+                });
+        tuitionOrder = tuitionOrderRepository.findByStatus(0);
         tuitionOrder.stream().filter(order -> {
                     boolean containFutureDays = Arrays
                             .stream(
