@@ -5,9 +5,9 @@ import java.util.List;
 
 
 public class TutorCalendarRes {
-	public List<Date> availableDate;
+	public List<String> availableDate;
 
-	public TutorCalendarRes(List<Date> availableDate) {
+	public TutorCalendarRes(List<String> availableDate) {
 		this.availableDate = availableDate;
 	}
 

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -62,7 +63,11 @@ public class TutorCalendarService {
 
         List<Date> dates = tutorCalendar.stream().map(c -> c.getAvailableDate()).collect(Collectors.toList());
         Collections.sort(dates);
-        return new TutorCalendarRes(dates);
+        List<String> result = dates.stream().map(date -> {
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            return dateFormat.format(date);
+        }).collect(Collectors.toList());
+        return new TutorCalendarRes(result);
     }
 
     @Transactional

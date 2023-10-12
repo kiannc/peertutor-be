@@ -17,7 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -107,14 +110,17 @@ public class TuitionOrderService {
             tuitionOrder.setTutorId(req.tutorId);
         }
 
-        List<Date> availableDates = tutorCalendarService.getTutorCalendar(req.tutorId).availableDate;
+        List<String> availableDates = tutorCalendarService.getTutorCalendar(req.tutorId).availableDate;
         if (req.selectedDates != null) {
             Collections.sort(req.selectedDates);
             String selectedDates = String.join(";", req.selectedDates.toString());
 
             if (req.status != null && req.status != 2) {
                 List<LocalDate> aDate = availableDates.stream()
-                        .map(Date::toLocalDate)
+                        .map(date -> {
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                            return LocalDate.parse(date, formatter);
+                        })
                         .collect(Collectors.toList());
                 List<LocalDate> sDate = req.selectedDates.stream()
                         .map(Date::toLocalDate)
